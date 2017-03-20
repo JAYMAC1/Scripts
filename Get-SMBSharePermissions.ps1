@@ -21,7 +21,29 @@
                 $shares = Get-WmiObject -Class Win32_LogicalShareSecuritySetting -ErrorAction Stop
                 $continue = $true
             } Catch {
-                
+                Write-Waring ("Failed to connect to server {0}" -f $computer)
+            }
+
+            If($continue){
+                ForEach($share in $shares){
+                    
+                    $Dacls = $share.getSecurityDescriptor().descriptor.dacl
+                    $i = 0
+                    Foreach($dacl in $dacls){
+                        
+                        $Trustee = $share.getSecurityDescriptor().descriptor.dacl[$i].Trustee.Name 
+                        $AccessMask = $share.getSecurityDescriptor().descriptor.dacl[$i].AccessMask
+                        
+                        $properties = [pscustomobject][ordered]@{
+                            'ShareName'=$share.Name;
+                            'ObjectName'=$Trustee;
+                            'AccessMask'=$AccessMask;
+                        }
+                        $i = $i + 1
+                        Write-Output -InputObject $properties
+                        
+                    }                   
+                }
             }
         }
     
@@ -30,4 +52,4 @@
 
 }
 
-$shares = Get-WmiObject -Class Win32_LogicalShareSecuritySetting
+Get-SMBSharePermissions -ComputerName lab-srv1

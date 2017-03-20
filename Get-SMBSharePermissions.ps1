@@ -31,6 +31,8 @@
                     $i = 0
                     Foreach($dacl in $dacls){
                         
+                        $Trustee = $share.getSecurityDescriptor().descriptor.dacl[$i].Trustee.Name
+                        $Domain = $share.getSecurityDescriptor().descriptor.dacl[$i].Trustee.Domain
                         $AccessMask = $share.getSecurityDescriptor().descriptor.dacl[$i].AccessMask
                         
                         $properties = [pscustomobject][ordered]@{
